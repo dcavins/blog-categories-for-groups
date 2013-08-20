@@ -153,17 +153,45 @@ function bcg_get_query(){
    if(!empty($cats))
         $cats_list=join(",",$cats);
    else return "name=-1";//we know it will not find anything
+ 
  if(bcg_is_single_post()){
         $slug=$bp->action_variables[0];
-        return "name=".$slug."&cat=".$cats_list;
+        // return "name=".$slug;//"&cat=".$cats_list;
+        $query = array(
+            'name' => $slug,
+            'post_type' => 'group_story'
+        );
+        
+        return apply_filters("bcg_get_query",$query);
  }
- $paged=(get_query_var('paged')) ? get_query_var('paged') : 1;
+$paged=(get_query_var('paged')) ? get_query_var('paged') : 1;
 if(bcg_is_category ()){
-    $query="cat=".$bp->action_variables[1];
-}//only posts from current category
+        // $query="cat=".$bp->action_variables[1]."&paged=".$paged;
+        $query = array(
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'related_groups',
+                    'field' => 'id',
+                    'terms' => array( $cats_list ),
+                    'operator' => 'IN'
+                )
+            )
+        );
+    }//only posts from current category
 else
-    $query= "cat=".$cats_list;
-return apply_filters("bcg_get_query",$query."&paged=".$paged);
+    // $query= "related_groups=".$cats_list;
+    $query = array(
+        'tax_query' => array(
+            array(
+                'taxonomy' => 'related_groups',
+                'field' => 'id',
+                'terms' => array( $cats_list ),
+                'operator' => 'IN'
+            )
+        )
+    );
+
+return apply_filters("bcg_get_query",$query);
 }
 
 function bcg_get_tab_label() {

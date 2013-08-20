@@ -171,16 +171,23 @@ function bcg_admin_form(){
     $selected_cats = bcg_get_categories($group_id);
     echo "<p>".__("Select a category to associate its posts with this group.","bcg")."</p>";
 
-    $cat_ids=get_all_category_ids();
-    if(is_array($cat_ids)){ ////it is sure but do not take risk
-      foreach($cat_ids as $cat_id){ //show the form
+    // $cat_ids=get_all_category_ids();
+    $tax_args = array(
+        'hide_empty'    => false,
+        // 'name__like'    => '',
+    );
+    $cats = get_terms('related_groups', $tax_args);
+
+    // print_r($cats);
+    if(is_array($cats)){ ////it is sure but do not take risk
+      foreach($cats as $cat){ //show the form
           $checked=0;
-        	if(!empty($selected_cats)&&in_array($cat_id,$selected_cats))
+        	if(!empty($selected_cats)&&in_array($cat->term_id,$selected_cats))
         			$checked=true;
         	?>
         	<label  style="padding:5px;display:block;float:left;">
-                <input type="checkbox" name="blog_cats[]" id="<?php $opt_id;?>" value="<?php echo $cat_id;?>" <?php if($checked) echo "checked='checked'" ;?>/>
-                <?php echo get_cat_name($cat_id);?>
+                <input type="checkbox" name="blog_cats[]" id="<?php $cat->term_id;?>" value="<?php echo $cat->term_id;?>" <?php if($checked) echo "checked='checked'" ;?>/>
+                <?php echo $cat->name;?>
         	</label>
 <?php
        } //Ends foreach
@@ -222,14 +229,24 @@ function bcg_admin_form(){
 function bcg_get_post_form($group_id){
     global $bp;
     $cat_selected=bcg_get_categories($group_id);//selected cats
+    // print_r($cat_selected);
     if(empty($cat_selected)){
              _e('This group has no categories associated with it. To post to group blog, first associate one or more categories with it.','bcg');
             return;
         }
 
-    $all_cats=get_all_category_ids();
+    // $all_cats=get_all_category_ids();
+        // $all_cats = get_terms('');
+    $tax_args = array(
+        'hide_empty'    => false,
+        'fields'        => 'ids', 
+        // 'name__like'    => '',
+    );
+    $all_cats = get_terms('related_groups', $tax_args);
+
     $cats=array_diff($all_cats,$cat_selected);
-    
+        // print_r($cats);
+
 
     //for form
     $url=bp_get_group_permalink(new BP_Groups_Group($group_id)).bcg_get_slug()."/create/";

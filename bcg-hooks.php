@@ -44,7 +44,7 @@ function bcg_fix_comment_form($post_id){
 
 
 //fix post permalink, should we ?
-add_filter('post_link','bcg_fix_permalink',10,3);
+add_filter('post_type_link','bcg_fix_permalink',10,3);
 function bcg_fix_permalink($post_link, $id, $leavename){
     if(!is_bcg_pages()||!in_bcg_loop())
         return $post_link;

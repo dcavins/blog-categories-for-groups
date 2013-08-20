@@ -144,13 +144,13 @@ class BCG_View_Helper{
         //register form if the BPDev PostEditor Exists
         if(function_exists('bp_new_simple_blog_post_form')){
             $form_params=array(
-                'post_type'=>'post',
+                'post_type'=>'group_story',
                 'post_author'=>  bp_loggedin_user_id(),
                 'post_status'=>'draft',
                 'current_user_can_post'=>  bcg_current_user_can_post(),
                 // 'upload_count' => 1, //Changing this enables file uploads on the form.
                 'tax'=>array(
-                    'category'=>array(
+                    'related_groups'=>array(
                         'include'=>bcg_get_categories($group_id),//selected cats,
                     )
                 ),
