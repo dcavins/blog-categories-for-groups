@@ -92,7 +92,7 @@ class BCG_View_Helper{
         //setup nav
         // add_action('groups_setup_nav',  array($this,'setup_nav'));
         add_action('bp_ready',          array($this,'screen_group_blog_single_post'),5);
-        add_action('bp_init',           array($this,'register_form'));
+        add_action('bp_ready',           array($this,'register_form'));
 
     }
     
@@ -139,8 +139,14 @@ class BCG_View_Helper{
      * Register the simple front end post plugin
      */
     function register_form(){
+
+        if ( bcg_get_slug() != bp_current_action() )
+            return;
        
         $group_id=bp_get_current_group_id();
+
+        $good_docs = cc_get_associatable_bp_docs_narrative_form( $group_id );
+
         //register form if the BPDev PostEditor Exists
         if(function_exists('bp_new_simple_blog_post_form')){
             $form_params=array(
@@ -150,14 +156,32 @@ class BCG_View_Helper{
                 'current_user_can_post'=>  bcg_current_user_can_post(),
                 // 'upload_count' => 1, //Changing this enables file uploads on the form.
                 'tax'=>array(
-                    'related_groups'=>array(
+                        'related_groups'=>array(
                         'include'=>bcg_get_categories($group_id),//selected cats,
-                    )
-                ),
-
-            'show_tags'=>false,//current version does not support the tag
-
-            'allowed_tags'=>array());
+                        ),
+                    ),
+                'custom_fields'=>array(
+                        'group_story_related_docs' => array(
+                        // 'include'=> cc_get_associateable_docs($group_id),
+                        'type' => 'checkbox',
+                        'label' => 'Associated Group Library Items',
+                        'options' => cc_get_associatable_bp_docs_narrative_form( $group_id ),
+                        //Example
+                        // 'options' => array(
+                        //         'option_one' => array(
+                        //             'value' => 'first_value',
+                        //             'label' => 'First option'
+                        //         ),
+                        //         'option_two' => array(
+                        //             'value' => 'second_value',
+                        //             'label' => 'Second option'
+                        //         ) 
+                        //     ),
+                        ),
+                    ),
+                'show_tags'=>false,//current version does not support the tag
+                'allowed_tags'=>array()
+            );
             
             $form=bp_new_simple_blog_post_form('bcg_form',apply_filters('bcg_form_args',$form_params));
 
