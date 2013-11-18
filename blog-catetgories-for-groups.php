@@ -168,12 +168,13 @@ class BCG_View_Helper{
             // Add extra information if necessary
             // Add attachable docs
             if ( function_exists( 'bp_docs_is_docs_enabled_for_group' ) && 
-                 bp_docs_is_docs_enabled_for_group( $group_id ) ) {
+                 bp_docs_is_docs_enabled_for_group( $group_id ) &&
+                 $attachable_docs = cc_get_associatable_bp_docs_narrative_form( $group_id ) ) {
 
                 $form_params['custom_fields']['group_story_related_docs'] = array(
                             'type' => 'checkbox',
                             'label' => 'Associated Group Library Items',
-                            'options' => cc_get_associatable_bp_docs_narrative_form( $group_id ),
+                            'options' => $attachable_docs,
                         );
             }
             // Add attachable reports and maps list
