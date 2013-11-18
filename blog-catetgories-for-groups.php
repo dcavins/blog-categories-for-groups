@@ -145,8 +145,6 @@ class BCG_View_Helper{
        
         $group_id=bp_get_current_group_id();
 
-        $good_docs = cc_get_associatable_bp_docs_narrative_form( $group_id );
-
         //register form if the BPDev PostEditor Exists
         if(function_exists('bp_new_simple_blog_post_form')){
             $form_params=array(
@@ -161,27 +159,41 @@ class BCG_View_Helper{
                         ),
                     ),
                 'custom_fields'=>array(
-                        'group_story_related_docs' => array(
-                        // 'include'=> cc_get_associateable_docs($group_id),
-                        'type' => 'checkbox',
-                        'label' => 'Associated Group Library Items',
-                        'options' => cc_get_associatable_bp_docs_narrative_form( $group_id ),
-                        //Example
-                        // 'options' => array(
-                        //         'option_one' => array(
-                        //             'value' => 'first_value',
-                        //             'label' => 'First option'
-                        //         ),
-                        //         'option_two' => array(
-                        //             'value' => 'second_value',
-                        //             'label' => 'Second option'
-                        //         ) 
-                        //     ),
-                        ),
+                        //Extra info will go in here, we'll add it as needed.
                     ),
                 'show_tags'=>false,//current version does not support the tag
                 'allowed_tags'=>array()
             );
+            
+            // Add extra information if necessary
+            // Add attachable docs
+            if ( function_exists( 'bp_docs_is_docs_enabled_for_group' ) && 
+                 bp_docs_is_docs_enabled_for_group( $group_id ) ) {
+
+                $form_params['custom_fields']['group_story_related_docs'] = array(
+                            'type' => 'checkbox',
+                            'label' => 'Associated Group Library Items',
+                            'options' => cc_get_associatable_bp_docs_narrative_form( $group_id ),
+                        );
+            }
+            // Add attachable reports and maps list
+            if ( function_exists( 'cc_get_associatable_maps_reports_narrative_form' ) ) { 
+
+                if ( $attachable_maps = cc_get_associatable_maps_reports_narrative_form( $group_id, 'map' ) ) {
+                    $form_params['custom_fields']['group_story_related_maps'] = array(
+                                'type' => 'checkbox',
+                                'label' => 'Associated Group Maps',
+                                'options' => $attachable_maps,
+                            );
+                }
+                if ( $attachable_reports = cc_get_associatable_maps_reports_narrative_form( $group_id, 'report' ) ) {
+                    $form_params['custom_fields']['group_story_related_reports'] = array(
+                                'type' => 'checkbox',
+                                'label' => 'Associated Group Reports',
+                                'options' => $attachable_reports,
+                            );
+                }
+            }
             
             $form=bp_new_simple_blog_post_form('bcg_form',apply_filters('bcg_form_args',$form_params));
 
